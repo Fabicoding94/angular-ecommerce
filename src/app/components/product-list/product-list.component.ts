@@ -18,8 +18,10 @@ export class ProductListComponent implements OnInit {
 
   //properties for pagination
   thePageNumber: number = 1;
-  thePageSize: number = 10;
+  thePageSize: number = 50;
   theTotalElements: number = 0;
+
+  previousKeyword: string = "";
 
 
   constructor(
@@ -43,12 +45,36 @@ export class ProductListComponent implements OnInit {
     }
   }
 
-  handleSearchProducts(){
+  /*handleSearchProducts(){
     const keyword: string = this.route.snapshot.paramMap.get('keyword')!;
 
     this.productService.searchProducts(keyword).subscribe((data) => {
       this.products = data;
     });
+  }*/
+
+   handleSearchProducts(){
+    const theKeyword: string = this.route.snapshot.paramMap.get('keyword')!;
+
+    //if we have a different keyword than previous
+    // then reset the page number to 1
+    if(this.previousKeyword!= theKeyword){
+      this.thePageNumber = 1;
+    }
+
+    this.previousKeyword = theKeyword;
+    console.log(`keyword=${theKeyword}, thePageNumber=${this.thePageNumber}`);
+
+    this.productService.searchProductsPaginate(this.thePageNumber - 1, this.thePageSize, theKeyword).subscribe(this.processResult());
+  }
+
+  private processResult(){
+    return (data: any) => {
+      this.products = data._embedded.products;
+      this.thePageNumber = data.page.number + 1;
+      this.thePageSize = data.page.size;
+      this.theTotalElements = data.page.totalElements;
+    };
   }
 
 
@@ -81,14 +107,24 @@ export class ProductListComponent implements OnInit {
     //this.products = data;
     // });
 
-    this.productService.getProductListPaginate(this.thePageNumber - 1, this.thePageSize, this.currentCategoryId).subscribe(data => {
-      this.products = data._embedded.products;
-      this.thePageNumber = data.page.number + 1;
-      this.thePageSize = data.page.size;
-      this.theTotalElements = data.page.totalElements;
-      console.log(`pageNumber: ${this.thePageNumber}, pageSize: ${this.thePageSize}, totalElements: ${this.theTotalElements}`);
-    });
-
+    this.productService.getProductListPaginate(this.thePageNumber - 1,
+                                              this.thePageSize,
+                                              this.currentCategoryId).subscribe(this.processResult());
   }
+
+  // method to handle page change
+   updatePageSize(pageSize: string){
+      this.thePageSize = +pageSize;
+      this.thePageNumber = 1;
+      this.listProducts();
+    }
+
+addToCart(theProduct: Product) {
+
+console.log(`Adding to cart: ${theProduct.name}, ${theProduct.unitPrice}`);
+
+// TODO ... the real work
+}
+
 }
 

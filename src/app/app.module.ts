@@ -13,6 +13,7 @@ import { ProductDetailsComponent } from './components/product-details/product-de
 
 import { CommonModule } from '@angular/common';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { CartStatusComponent } from "./components/cart-status/cart-status.component";
 
 
 const routes: Routes = [
@@ -41,9 +42,10 @@ const routes: Routes = [
     BrowserModule,
     HttpClientModule,
     CommonModule,
-    NgbModule
+    NgbModule,
+    CartStatusComponent
 
-  ],
+],
   providers: [ProductService],
   bootstrap: [AppComponent]
 })
